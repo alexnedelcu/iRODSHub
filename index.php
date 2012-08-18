@@ -1,5 +1,5 @@
 <?
-  require_once('php-sdk/facebook.php');
+  require_once('php-sdk/src/facebook.php');
 
   $config = array(
     'appId' => '323823657701745',
@@ -85,8 +85,7 @@ if (! isset($data[oauth_token]) && isset($data[user_id]))
 }
 ?>
 
-<h3>Test print out user's profile</h3>
-
+<h3>Your groups:</h3>
  <?
     if($user_id) {
 
@@ -94,8 +93,17 @@ if (! isset($data[oauth_token]) && isset($data[user_id]))
       // If not, we'll get an exception, which we handle below.
       try {
 
-        $user_profile = $facebook->api('/me','GET');
-        echo "Name: " . $user_profile['name'];
+        $groups = $facebook->api('/me/groups','GET');
+        
+		// Print out a list of the groups' names
+		$datas = $groups['data'];
+		$string = "https://www.facebook.com/groups/";
+		
+		foreach ($datas as $data)
+		{
+			echo "<a href='$string".$data['id']."' target='_blank'>". $data['name']. "</a><br />";
+			
+		}
 
       } catch(FacebookApiException $e) {
         // If the user is logged out, you can have a 
