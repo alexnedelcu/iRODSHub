@@ -135,7 +135,7 @@ if (! isset($data[oauth_token]) && ! isset($data[user_id]))
 
   ?>
       <h3>Browse files:</h3>
-      <?
+	  <?
 	foreach ($datas as $data)
 	{
 		if (@fopen($data['id'].'.txt', 'r'))
@@ -151,7 +151,8 @@ if (! isset($data[oauth_token]) && ! isset($data[user_id]))
 				 "</table>";
 		}
 	}
-?>
+?>	  
+      
       <h3>Connect your group to a collection in server:</h3>
       <form>
         <input type="text" placeholder="path in iRods server" id="path"/><br />
@@ -189,14 +190,15 @@ function deleteLink(id) {
 	xmlhttp.open("GET", "unlink.php?fileName="+fileName, true);
 	xmlhttp.send();
 	
+	/*
 	xmlhttp.onreadystatechange = function()
   	{
 	  	if (xmlhttp.readyState==4 && xmlhttp.status==200)
 		{
-			window.location.reload();
 			alert("Deteled!");
 		}
 	}
+	*/
 }
 
 function linkGroupWCollection() {
