@@ -14,12 +14,23 @@
 <html>
 <head>
 <meta charset="utf-8">
+<style type="text/css">
+button.button_delete {
+    background-image: url(img/symbol-delete.png);
+    background-color: transparent;
+    background-repeat: no-repeat;
+    border: none;
+    cursor: pointer;        /* make the cursor like hovering over an <a> element */
+    height: 20px;
+    padding-left: 20px;     /* make text start to the right of the image */
+    vertical-align: middle; /* align the text vertically centered */
+}
+</style>
+
 <title>iBox</title>
 </head>
 
 <body>
-
-<div id="fb-root"></div>
 <script>
   window.fbAsyncInit = function() {
     FB.init({
@@ -42,7 +53,6 @@
      ref.parentNode.insertBefore(js, ref);
    }(document));
 </script>
-
 <?
 function parse_signed_request($signed_request, $secret) {
   list($encoded_sig, $payload) = explode('.', $signed_request, 2); 
@@ -72,7 +82,7 @@ function base64_url_decode($input) {
 
 $data = parse_signed_request($_REQUEST['signed_request'], c16e3be960ead3b04c01480d59b3072a);
 
-if (! isset($data[oauth_token]) && isset($data[user_id]))
+if (! isset($data[oauth_token]) && ! isset($data[user_id]))
 {
 	echo "<script>
   			var oauth_url = 'https://www.facebook.com/dialog/oauth/';
@@ -84,9 +94,10 @@ if (! isset($data[oauth_token]) && isset($data[user_id]))
 		  </script>";
 }
 ?>
-
-<h3>Your groups:</h3>
- <?
+<table>
+  <tr>
+    <td><h3>Your groups:</h3>
+      <?
     if($user_id) {
 
       // We have a user ID, so probably a logged in user.
@@ -102,7 +113,6 @@ if (! isset($data[oauth_token]) && isset($data[user_id]))
 		foreach ($datas as $data)
 		{
 			echo "<a href='$string".$data['id']."' target='_blank'>". $data['name']. "</a><br />";
-			
 		}
 
       } catch(FacebookApiException $e) {
@@ -124,6 +134,89 @@ if (! isset($data[oauth_token]) && isset($data[user_id]))
     }
 
   ?>
+      <h3>Browse files:</h3>
+      <?
+	foreach ($datas as $data)
+	{
+		if (@fopen($data['id'].'.txt', 'r'))
+		{
+			$group = $facebook->api($data['id'],'GET');
 
+			echo "<table>
+					<tr>
+    					<td width='30px'><img src='".$group['icon']."'/></td>".
+			 		   "<td width='300px'>".$data['name']."</td>".
+					   "<td><button class='button_delete' onClick='deleteLink(".$data['id'].")'/></td>".
+					"</tr>".
+				 "</table>";
+		}
+	}
+?>
+      <h3>Connect your group to a collection in server:</h3>
+      <form>
+        <input type="text" placeholder="path in iRods server" id="path"/><br />
+        <select id="group_id">
+          <?
+ if($user_id) {
+ 	foreach ($datas as $data)
+	{
+		if (!@fopen($data['id'].'.txt', 'r'))
+		{
+			echo "<option value='".$data['id']."'>".$data['name']."</option><br />";
+		}
+	}
+ }
+ ?>
+        </select>
+        <input type="submit" value="Link" onclick="linkGroupWCollection()" />
+      </form>
+      
+<script>
+var xmlhttp;
+if (window.XMLHttpRequest)
+	{// code for IE7+, Firefox, Chrome, Opera, Safari
+	xmlhttp=new XMLHttpRequest();
+	}
+else
+	{// code for IE6, IE5
+	xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+	}
+
+function deleteLink(id) {
+	
+	var fileName = id + ".txt";
+	
+	xmlhttp.open("GET", "unlink.php?fileName="+fileName, true);
+	xmlhttp.send();
+	
+	xmlhttp.onreadystatechange = function()
+  	{
+	  	if (xmlhttp.readyState==4 && xmlhttp.status==200)
+		{
+			window.location.reload();
+			alert("Deteled!");
+		}
+	}
+}
+
+function linkGroupWCollection() {
+	
+	var path = document.getElementById("path").value;
+	var id = document.getElementById("group_id").value;
+	
+	if (path == "")
+	{
+		alert("Error: Invalid Path!");
+		return;
+	}
+		
+	xmlhttp.open("GET", "printFile.php?path="+path+"&group_id="+id, false);
+	xmlhttp.send();
+
+	}
+</script></td>
+    <td> </td>
+  </tr>
+</table>
 </body>
 </html>
