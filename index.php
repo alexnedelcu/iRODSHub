@@ -14,6 +14,16 @@
 <html>
 <head>
 <meta charset="utf-8">
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){
+	$("p#your_groups") .click(function(){
+		$(".list_group").slideToggle("slow");
+	});
+	
+});
+</script>
+
 <style type="text/css">
 button.button_delete {
     background-image: url(img/symbol-delete.png);
@@ -25,6 +35,15 @@ button.button_delete {
     padding-left: 20px;     /* make text start to the right of the image */
     vertical-align: middle; /* align the text vertically centered */
 }
+p.title
+{
+margin:0px;
+padding:5px;
+text-align:left;
+background:#e5eecc;
+border:solid 1px #c3c3c3;
+}
+
 </style>
 
 <title>iBox</title>
@@ -96,7 +115,8 @@ if (! isset($data[oauth_token]) && ! isset($data[user_id]))
 ?>
 <table>
   <tr>
-    <td><h3>Your groups:</h3>
+    <td><p class='title' id="your_groups">YOUR GROUP</p>
+    <div class="list_group">
       <?
     if($user_id) {
 
@@ -133,8 +153,11 @@ if (! isset($data[oauth_token]) && ! isset($data[user_id]))
 
     }
 
-  ?>
-      <h3>Browse files:</h3>
+  	?>
+	</div>
+    
+      <br />
+      <p class='title'>BROWSE FILES</p>
 	  <?
 	foreach ($datas as $data)
 	{
