@@ -1,4 +1,8 @@
 <?
 $fileName = $_GET["fileName"];
-unlink($fileName);
+
+if (unlink($fileName))
+{
+echo "<script>alert('Deleted!')</script>";	
+}
 ?>
