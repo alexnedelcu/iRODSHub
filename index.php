@@ -49,7 +49,7 @@ button.button_delete {
 	border: none;
 	cursor: pointer;        /* make the cursor like hovering over an <a> element */
 	height: 20px;
-	padding-left: 10px;     /* make text start to the right of the image */
+	padding-left: 20px;     /* make text start to the right of the image */
 	vertical-align: middle; /* align the text vertically centered */
 }
 
@@ -61,9 +61,18 @@ p.title {
 	border: solid 1px #c3c3c3;
 	width: 360px;
 }
-div.log-in-form {
-	display: none;
+
+div.container {
+	background:#DDD;
+	padding-top:5px;
+	padding-bottom:5px;
 }
+
+input.form {
+	width: 250px;
+}
+	
+	
 </style>
 <title>iBox</title>
 </head>
@@ -198,32 +207,76 @@ if (! isset($data[oauth_token]) && ! isset($data[user_id]))
       </div>
       <div class="filler"></div>
       <p class='title' id="login">LOG IN</p>
+      <p>Click the log in bar to access your iRODS server.</p>
       
-      <p>Click the log in bar to access your iRODS server. </p>
+      <div class="container" id="form">
+      <form>
+      	<table width="100%">
+        	<tr>
+            	<td width="25%" style="text-align:right; padding-right:5px">Host:</td>
+                <td width="75%"><input type="text" name="host" id="host" value="" class="form"/></td>
+            </tr>
+            <tr>
+            	<td style="text-align:right; padding-right:5px">Port:</td>
+                <td><input type="text" name="port" id="port" value=""  class="form"/></td>
+            </tr>
+            <tr>
+            	<td style="text-align:right; padding-right:5px">Zone:</td>
+                <td><input type="text" name="zone" id="zone" value=""  class="form"/></td>
+            </tr>
+            <tr>
+            	<td style="text-align:right; padding-right:5px">User:</td>
+                <td><input type="text" name="user" id="user" value=""  class="form"/></td>
+            </tr>
+            <tr>
+            	<td style="text-align:right; padding-right:5px">Password:</td>
+                <td><input type="text" name="password" id="password" value=""  class="form"/></td>
+            </tr>
+        </table>
+        <div align="right" style="padding-right:30px">
+          <input type="submit" name="submit" id="submit" value="Summit" style="width:80px;"/>
+        </div>    
+      </form>
+      </div>
       
-      <div class="log-in-form">
-        <form>
-          <input type="text" placeholder="Instant Search" id="path"/>
-          <br />
-          <select id="group_id">
-            <?
- if($user_id) {
- 	foreach ($datas as $data)
-	{
-		if (!@fopen($data['id'].'.txt', 'r'))
-		{
-			echo "<option value='".$data['id']."'>".$data['name']."</option><br />";
-		}
-	}
- }
- ?>
-          </select>
-          <input type="submit" value="Link" onclick="linkGroupWCollection()" />
+      <div class="filler"></div>
+      <p>Instant search for collections </p>
+      <div class="container" id="link">
+      	<form>
+        <table width="100%">
+        	<tr>
+            	<td width="25%" style="text-align:right; padding-right:5px">Path:</td>
+                <td width="75%"><input type="text" id="path" class="form"/></td>
+          	</tr>
+            <tr>
+            	<td width="25%" style="text-align:right; padding-right:5px">Group:</td>
+                <td>
+                <select id="group_id" style="width:255px">
+            	<?
+			 		if($user_id) {
+						foreach ($datas as $data)
+						{
+							if (!@fopen($data['id'].'.txt', 'r'))
+							{
+								echo "<option value='".$data['id']."'>".$data['name']."</option><br />";
+							}
+						}
+			 		}
+				?>
+          		</select>
+                </td>
+            </tr>
+        </table>
+        <div align="right" style="padding-right:30px">
+          <input type="submit" name="submit" id="submit" value="Summit" style="width:80px;" onclick="linkGroupWCollection()"/>
+        </div>     
         </form>
+        
       </div></td>
     <td></td>
   </tr>
 </table>
+
 <script>
 var xmlhttp;
 if (window.XMLHttpRequest)
