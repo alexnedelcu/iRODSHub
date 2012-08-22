@@ -21,35 +21,55 @@ $(document).ready(function(){
 		$(".list_group").slideToggle("slow");
 	});
 	
+	$("p#connections") .click(function(){
+		$(".list_connection").slideToggle("slow");
+	});
+	
+	$("p#login") .click(function(){
+		$(".list_group").slideToggle("slow");
+		$(".list_connection").slideToggle("slow");
+	});
+	
 });
 </script>
-
 <style type="text/css">
+body {
+	padding: 10px;
+}
+
+div.filler {
+	height:5px;
+	width:inherit;	
+}
+
 button.button_delete {
-    background-image: url(img/symbol-delete.png);
-    background-color: transparent;
-    background-repeat: no-repeat;
-    border: none;
-    cursor: pointer;        /* make the cursor like hovering over an <a> element */
-    height: 20px;
-    padding-left: 20px;     /* make text start to the right of the image */
-    vertical-align: middle; /* align the text vertically centered */
-}
-p.title
-{
-margin:0px;
-padding:5px;
-text-align:left;
-background:#e5eecc;
-border:solid 1px #c3c3c3;
+	background-image: url(img/symbol-delete.png);
+	background-color: transparent;
+	background-repeat: no-repeat;
+	border: none;
+	cursor: pointer;        /* make the cursor like hovering over an <a> element */
+	height: 20px;
+	padding-left: 10px;     /* make text start to the right of the image */
+	vertical-align: middle; /* align the text vertically centered */
 }
 
+p.title {
+	margin: 0px;
+	padding: 5px;
+	text-align: left;
+	background: #e5eecc;
+	border: solid 1px #c3c3c3;
+	width: 360px;
+}
+div.log-in-form {
+	display: none;
+}
 </style>
-
 <title>iBox</title>
 </head>
 
 <body>
+<div id="fb-root"></div>
 <script>
   window.fbAsyncInit = function() {
     FB.init({
@@ -115,9 +135,9 @@ if (! isset($data[oauth_token]) && ! isset($data[user_id]))
 ?>
 <table>
   <tr>
-    <td><p class='title' id="your_groups">YOUR GROUP</p>
-    <div class="list_group">
-      <?
+    <td id="initial-view"><p class='title' id="your_groups">YOUR GROUPS</p>
+      <div class="list_group">
+        <?
     if($user_id) {
 
       // We have a user ID, so probably a logged in user.
@@ -154,11 +174,11 @@ if (! isset($data[oauth_token]) && ! isset($data[user_id]))
     }
 
   	?>
-	</div>
-    
-      <br />
-      <p class='title'>BROWSE FILES</p>
-	  <?
+      </div>
+      <div class="filler"></div>
+      <p class='title' id="connections">BROWSE FILES</p>
+      <div class="list_connection">
+        <?
 	foreach ($datas as $data)
 	{
 		if (@fopen($data['id'].'.txt', 'r'))
@@ -169,18 +189,24 @@ if (! isset($data[oauth_token]) && ! isset($data[user_id]))
 					<tr>
     					<td width='30px'><img src='".$group['icon']."'/></td>".
 			 		   "<td width='300px'>".$data['name']."</td>".
-					   "<td><button class='button_delete' onClick='deleteLink(".$data['id'].")'/></td>".
+					   "<td ><button class='button_delete' onClick='deleteLink(".$data['id'].")'/></td>".
 					"</tr>".
 				 "</table>";
 		}
 	}
-?>	  
+?>
+      </div>
+      <div class="filler"></div>
+      <p class='title' id="login">LOG IN</p>
       
-      <h3>Connect your group to a collection in server:</h3>
-      <form>
-        <input type="text" placeholder="path in iRods server" id="path"/><br />
-        <select id="group_id">
-          <?
+      <p>Click the log in bar to access your iRODS server. </p>
+      
+      <div class="log-in-form">
+        <form>
+          <input type="text" placeholder="Instant Search" id="path"/>
+          <br />
+          <select id="group_id">
+            <?
  if($user_id) {
  	foreach ($datas as $data)
 	{
@@ -191,10 +217,13 @@ if (! isset($data[oauth_token]) && ! isset($data[user_id]))
 	}
  }
  ?>
-        </select>
-        <input type="submit" value="Link" onclick="linkGroupWCollection()" />
-      </form>
-      
+          </select>
+          <input type="submit" value="Link" onclick="linkGroupWCollection()" />
+        </form>
+      </div></td>
+    <td></td>
+  </tr>
+</table>
 <script>
 var xmlhttp;
 if (window.XMLHttpRequest)
@@ -239,9 +268,6 @@ function linkGroupWCollection() {
 	xmlhttp.send();
 
 	}
-</script></td>
-    <td> </td>
-  </tr>
-</table>
+</script>
 </body>
 </html>
