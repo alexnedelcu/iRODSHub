@@ -28,6 +28,8 @@ $(document).ready(function(){
 	$("p#login") .click(function(){
 		$(".list_group").slideToggle("slow");
 		$(".list_connection").slideToggle("slow");
+		$("div#form").slideDown("slow");
+		$(".search").slideDown("slow");
 	});
 	
 });
@@ -62,17 +64,34 @@ p.title {
 	width: 360px;
 }
 
+
 div.container {
+	display:none;
 	background:#DDD;
 	padding-top:5px;
 	padding-bottom:5px;
+	width:371px;
+}
+
+div.container-search {
+	background:#DDD;
+	padding-top:5px;
+	padding-bottom:5px;
+	width:371px;
+}
+
+div.response {
+	width:371px;
+	text-align:justify;
 }
 
 input.form {
 	width: 250px;
 }
-	
-	
+
+div.search {
+	display:none;
+}
 </style>
 <title>iBox</title>
 </head>
@@ -207,10 +226,10 @@ if (! isset($data[oauth_token]) && ! isset($data[user_id]))
       </div>
       <div class="filler"></div>
       <p class='title' id="login">LOG IN</p>
-      <p>Click the log in bar to access your iRODS server.</p>
+      <p><b>Click the log in bar to access your iRODS server.</b></p>
       
       <div class="container" id="form">
-      <form>
+      <form action="" method="post" onSubmit="logIn(); return false;">
       	<table width="100%">
         	<tr>
             	<td width="25%" style="text-align:right; padding-right:5px">Host:</td>
@@ -230,18 +249,20 @@ if (! isset($data[oauth_token]) && ! isset($data[user_id]))
             </tr>
             <tr>
             	<td style="text-align:right; padding-right:5px">Password:</td>
-                <td><input type="text" name="password" id="password" value=""  class="form"/></td>
+                <td><input type="password" name="password" id="password" value=""  class="form"/></td>
             </tr>
         </table>
         <div align="right" style="padding-right:30px">
-          <input type="submit" name="submit" id="submit" value="Summit" style="width:80px;"/>
+          <input type="submit" name="submit" id="login-button" value="Log in" style="width:80px;" />
         </div>    
       </form>
       </div>
       
       <div class="filler"></div>
-      <p>Instant search for collections </p>
-      <div class="container" id="link">
+      <div class="response" id="response"></div>
+      <div class="search">
+      <p><b>iRODS instant search</b></p>
+      <div class="container-search" id="link">
       	<form>
         <table width="100%">
         	<tr>
@@ -272,13 +293,16 @@ if (! isset($data[oauth_token]) && ! isset($data[user_id]))
         </div>     
         </form>
         
-      </div></td>
+      </div>
+      </div>
+      </td>
     <td></td>
   </tr>
 </table>
 
 <script>
 var xmlhttp;
+
 if (window.XMLHttpRequest)
 	{// code for IE7+, Firefox, Chrome, Opera, Safari
 	xmlhttp=new XMLHttpRequest();
@@ -294,16 +318,6 @@ function deleteLink(id) {
 	
 	xmlhttp.open("GET", "unlink.php?fileName="+fileName, true);
 	xmlhttp.send();
-	
-	/*
-	xmlhttp.onreadystatechange = function()
-  	{
-	  	if (xmlhttp.readyState==4 && xmlhttp.status==200)
-		{
-			alert("Deteled!");
-		}
-	}
-	*/
 }
 
 function linkGroupWCollection() {
@@ -321,6 +335,49 @@ function linkGroupWCollection() {
 	xmlhttp.send();
 
 	}
+	
+//Login iRODS server
+/* 	
+var host = document.getElementById("host").value;
+var port = document.getElementById("port").value;
+var zone = document.getElementById("zone").value;
+var user = document.getElementById("user").value;
+var password = document.getElementById("password").value;
+
+function logIn() {
+	xmlhttp.open("POST", "login.php?host="+host+"&port="+port
+		+"&zone="+zone+"&user="+user+"&password="+password, true);
+	xmlhttp.send();
+	xmlhttp.onreadystatechange=function() {
+  		if (xmlhttp.readyState==4 && xmlhttp.status==200) {
+    		document.getElementById("response").innerHTML=xmlhttp.responseText;
+    	}
+  	}
+}
+*/
+
+//Login iRODS Server
+function logIn() {
+		var host = $("#host").val();
+		var port = $("#port").val();
+		var zone = $("#zone").val();
+		var user = $("#user").val();
+		var password = $("#password").val();
+		
+		var dataString="host="+host+"&port="+port
+		+"&zone="+zone+"&user="+user+"&password="+password;
+		
+		var jqxhr = $.ajax({
+			type:"POST",
+			url:"login.php",
+			data:dataString,
+			success: function(data) {
+				$("div#response").html(data);
+				alert(data);
+			}
+		});
+}
+
 </script>
 </body>
 </html>
