@@ -32,6 +32,10 @@ $(document).ready(function(){
 		$(".search").slideDown("slow");
 	});
 	
+	$(".button_delete").click(function(){
+		$(".list_connection").load("index.php#list_connection");
+	});
+	
 });
 </script>
 <style type="text/css">
@@ -80,9 +84,9 @@ div.container-search {
 	width:371px;
 }
 
-div.response {
+div.response, div.search-result {
 	width:371px;
-	text-align:justify;
+	text-align:left;
 }
 
 input.form {
@@ -205,7 +209,7 @@ if (! isset($data[oauth_token]) && ! isset($data[user_id]))
       </div>
       <div class="filler"></div>
       <p class='title' id="connections">BROWSE FILES</p>
-      <div class="list_connection">
+      <div class="list_connection" id="list_connection">
         <?
 	foreach ($datas as $data)
 	{
@@ -267,7 +271,7 @@ if (! isset($data[oauth_token]) && ! isset($data[user_id]))
         <table width="100%">
         	<tr>
             	<td width="25%" style="text-align:right; padding-right:5px">Path:</td>
-                <td width="75%"><input type="text" id="path" class="form"/></td>
+                <td width="75%"><input type="text" id="path" class="form" onkeyup="iSearch(this.value)"/></td>
           	</tr>
             <tr>
             	<td width="25%" style="text-align:right; padding-right:5px">Group:</td>
@@ -295,6 +299,7 @@ if (! isset($data[oauth_token]) && ! isset($data[user_id]))
         
       </div>
       </div>
+      <div class="search-result" id="search-result"></div>
       </td>
     <td></td>
   </tr>
@@ -356,6 +361,8 @@ function logIn() {
 }
 */
 
+var dataString;
+
 //Login iRODS Server
 function logIn() {
 		var host = $("#host").val();
@@ -364,7 +371,7 @@ function logIn() {
 		var user = $("#user").val();
 		var password = $("#password").val();
 		
-		var dataString="host="+host+"&port="+port
+		dataString="host="+host+"&port="+port
 		+"&zone="+zone+"&user="+user+"&password="+password;
 		
 		var jqxhr = $.ajax({
@@ -373,9 +380,21 @@ function logIn() {
 			data:dataString,
 			success: function(data) {
 				$("div#response").html(data);
-				alert(data);
 			}
 		});
+}
+
+//Ajax function to instant search for irods files/collections
+function iSearch(str) {
+	xmlhttp.onreadystatechange=function() {
+		if (xmlhttp.readyState==4 && xmlhttp.status==200) {
+			document.getElementById("search-result").innerHTML=xmlhttp.responseText;
+		}
+	}
+	
+	xmlhttp.open("GET","search.php?q="+str+"&"+dataString,true);
+	xmlhttp.send();
+	
 }
 
 </script>
