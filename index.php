@@ -12,7 +12,13 @@
 
 <!doctype html>
 <html>
-<head>
+ <head prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb# irodshub: http://ogp.me/ns/fb/irodshub#">
+  <meta property="fb:app_id" content="323823657701745" /> 
+  <meta property="og:type"   content="irodshub:file" /> 
+  <meta property="og:url"    content="Put your own URL to the object here" /> 
+  <meta property="og:title"  content="a new file" /> 
+  <meta property="og:image"  content="http://irodshub.appoverdrive.com/img/irods_small.png" /> 
+  
 <meta charset="utf-8">
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script>
 <script type="text/javascript">
@@ -36,6 +42,11 @@ $(document).ready(function(){
 		$(".list_connection").load("index.php#list_connection");
 	});
 	
+	$("input#connect-button").click(function(){
+		$(".list_connection").load("index.php#list_connection");
+		alert("Connection created!");
+	});
+	
 });
 </script>
 <style type="text/css">
@@ -48,7 +59,7 @@ div.filler {
 	width:inherit;	
 }
 
-button.button_delete {
+button.button_delete, button.button_folder {
 	background-image: url(img/symbol-delete.png);
 	background-color: transparent;
 	background-repeat: no-repeat;
@@ -57,6 +68,10 @@ button.button_delete {
 	height: 20px;
 	padding-left: 20px;     /* make text start to the right of the image */
 	vertical-align: middle; /* align the text vertically centered */
+}
+
+button.button_folder {
+	background-image: url(img/folder-icon.png);
 }
 
 p.title {
@@ -96,34 +111,18 @@ input.form {
 div.search {
 	display:none;
 }
+
+iframe {
+	width:800px;
+	height:100%;
+	padding-left:10px;
+}
+
 </style>
-<title>iBox</title>
+<title>iRodsHub</title>
 </head>
 
 <body>
-<div id="fb-root"></div>
-<script>
-  window.fbAsyncInit = function() {
-    FB.init({
-      appId      : '323823657701745', // App ID
-      channelUrl : 'http://irodshub.appoverdrive.com/channel.html', // Channel File
-      status     : true, // check login status
-      cookie     : true, // enable cookies to allow the server to access the session
-      xfbml      : true  // parse XFBML
-    });
-
-    // Additional initialization code here
-  };
-
-  // Load the SDK Asynchronously
-  (function(d){
-     var js, id = 'facebook-jssdk', ref = d.getElementsByTagName('script')[0];
-     if (d.getElementById(id)) {return;}
-     js = d.createElement('script'); js.id = id; js.async = true;
-     js.src = "//connect.facebook.net/en_US/all.js";
-     ref.parentNode.insertBefore(js, ref);
-   }(document));
-</script>
 <?
 function parse_signed_request($signed_request, $secret) {
   list($encoded_sig, $payload) = explode('.', $signed_request, 2); 
@@ -220,8 +219,9 @@ if (! isset($data[oauth_token]) && ! isset($data[user_id]))
 			echo "<table>
 					<tr>
     					<td width='30px'><img src='".$group['icon']."'/></td>".
-			 		   "<td width='300px'>".$data['name']."</td>".
-					   "<td ><button class='button_delete' onClick='deleteLink(".$data['id'].")'/></td>".
+			 		   "<td width='270px'>".$data['name']."</td>".
+					   "<td><button class='button_delete' onClick='deleteLink(".$data['id'].")'/></td>".
+					   "<td><button class='button_folder' onClick='loadIframe(".$data['id'].")'/></td>".
 					"</tr>".
 				 "</table>";
 		}
@@ -267,7 +267,7 @@ if (! isset($data[oauth_token]) && ! isset($data[user_id]))
       <div class="search">
       <p><b>iRODS instant search</b></p>
       <div class="container-search" id="link">
-      	<form>
+      	<form action="" method="post" onSubmit="linkGroupWCollection(); return false;">
         <table width="100%">
         	<tr>
             	<td width="25%" style="text-align:right; padding-right:5px">Path:</td>
@@ -293,7 +293,7 @@ if (! isset($data[oauth_token]) && ! isset($data[user_id]))
             </tr>
         </table>
         <div align="right" style="padding-right:30px">
-          <input type="submit" name="submit" id="submit" value="Summit" style="width:80px;" onclick="linkGroupWCollection()"/>
+          <input type="submit" name="submit" id="connect-button" value="Summit" style="width:80px;"/>
         </div>     
         </form>
         
@@ -301,7 +301,7 @@ if (! isset($data[oauth_token]) && ! isset($data[user_id]))
       </div>
       <div class="search-result" id="search-result"></div>
       </td>
-    <td></td>
+    <td><iframe src="" frameborder="0" scrolling="auto" ></iframe></td>
   </tr>
 </table>
 
@@ -324,22 +324,6 @@ function deleteLink(id) {
 	xmlhttp.open("GET", "unlink.php?fileName="+fileName, true);
 	xmlhttp.send();
 }
-
-function linkGroupWCollection() {
-	
-	var path = document.getElementById("path").value;
-	var id = document.getElementById("group_id").value;
-	
-	if (path == "")
-	{
-		alert("Error: Invalid Path!");
-		return;
-	}
-		
-	xmlhttp.open("GET", "printFile.php?path="+path+"&group_id="+id, false);
-	xmlhttp.send();
-
-	}
 	
 //Login iRODS server
 /* 	
@@ -392,9 +376,27 @@ function iSearch(str) {
 		}
 	}
 	
-	xmlhttp.open("GET","search.php?q="+str+"&"+dataString,true);
-	xmlhttp.send();
+	xmlhttp.open("GET","search.php?q="+str+"&"+dataString, true);
+	xmlhttp.send();	
+}
+
+function linkGroupWCollection() {
 	
+	var path = document.getElementById("path").value;
+	var id = document.getElementById("group_id").value;
+	
+	if (path == "")
+	{
+		alert("Error: Invalid Path!");
+		return;
+	}
+		
+	xmlhttp.open("GET", "printFile.php?path="+path+"&group_id="+id+"&"+dataString, false);
+	xmlhttp.send();
+	}
+
+function loadIframe(id) {
+	$("iframe").attr("src", "/transfer.php?fileName="+id+".txt");
 }
 
 </script>
